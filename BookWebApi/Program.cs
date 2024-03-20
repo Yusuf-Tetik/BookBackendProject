@@ -1,11 +1,20 @@
 using BookWebApi.Repository;
+using BookWebApi.Service.Concrete;
+using BookWebApi.Service.Interfaces;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 //Kitap, yazar ve kategorilerle alakalý CRUD opreasyonlarý yapalým.
 // Add services to the container.
 
 builder.Services.AddControllers();
+//Sen benden Ibookservisten istersen ben sana BookServisten newleyerek getiririm komutu
+builder.Services.AddScoped<IBookService,BookService>();
+builder.Services.AddScoped<IAuthorService,AuthorService>();
+builder.Services.AddScoped<ICategoryService,CategoryService>();
+
 builder.Services.AddDbContext<BaseDbContext>();
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

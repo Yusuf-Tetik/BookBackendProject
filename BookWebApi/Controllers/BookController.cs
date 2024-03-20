@@ -1,6 +1,7 @@
-﻿using BookWebApi.Models.Entities;
-using BookWebApi.Repository;
-using Microsoft.AspNetCore.Http;
+﻿using BookWebApi.Models.Dtos.RequestDto;
+using BookWebApi.Models.Dtos.ResponseDto;
+using BookWebApi.Models.Entities;
+using BookWebApi.Service.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookWebApi.Controllers;
@@ -14,48 +15,63 @@ namespace BookWebApi.Controllers;
 [ApiController]
 public class BookController : ControllerBase
 {
-    BaseDbContext context = new BaseDbContext();
+    private readonly IBookService _service;
 
-
-    [HttpPost("add")]
-    public IActionResult Add([FromBody] Book book)
+    public BookController(IBookService service)
     {
-        context.Books.Add(book);
-        context.SaveChanges();
-
-        return Ok("Ekleme başarılı.");
+        _service = service;
     }
-    [HttpGet("getall")]
-    public IActionResult GetAll() 
-    {
-        List<Book> books = context.Books.ToList();
 
+    [HttpGet("getall")]
+    public IActionResult GetAll()
+    {
+        List<Book> books = _service.GetAll();
         return Ok(books);
+
     }
 
     [HttpGet("getbyid")]
-    public IActionResult GetById(int id) 
+    public IActionResult GetById(int id)
     {
-        Book book = context.Books.Find(id);
+        Book book = _service.GetById(id);
         return Ok(book);
     }
 
-    [HttpGet("getbystockrange")]
-    public IActionResult GetByStockRange([FromQuery]int min,[FromQuery]int max)
+    [HttpPut]
+    public IActionResult Update([FromBody] BookUpdateRequestDto dto)
     {
-        List<Book> books=context.Books.Where(x=> x.Stock<max && x.Stock>min).ToList();
+        _service.Update(dto);
+        return Ok("Güncelleme başarılı.");
 
-        return Ok(books);
     }
 
-    [HttpGet("getbypricerange")]
-
-    public IActionResult GetByPriceRange([FromQuery] double min, [FromQuery] double max)
+    [HttpPost("add")]
+    public IActionResult Add([FromBody] BookAddRequestDto dto) 
     {
-        List<Book> books = context.Books.Where(x => x.Price <= max && x.Price >= min).ToList();
-        
-        return Ok(books);
+        _service.Add(dto);
+        return Ok("Ekleme başarılı");
     }
+    [HttpDelete("delete")]
+    public IActionResult DeleteById([FromQuery]int id) 
+    {
+        _service.Delete(id);
+        return Ok("Silme başarılı");
+    }
+    [HttpGet("getalldetails")]
+    public IActionResult GetAllDetails()
+    {
+        List<BookResponseDto> result = _service.GetAllDetails();
+        return Ok(result);
+    }
+
+
+
+
+
 
 
 }
+
+
+
+
